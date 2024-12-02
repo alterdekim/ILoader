@@ -1,13 +1,15 @@
-use rusb::{Device, DeviceDescriptor, GlobalContext};
+
+mod disk_util;
+
+const VENDOR_ID: u16 = 1452;
+const PRODUCT_ID: u16 = 4617;
 
 fn main() {
-    // vendor_id: 3141
-    // product_id: 32777
-
-    loop {
-        for device in rusb::devices().unwrap().iter() {
-            let device_desc = device.device_descriptor().unwrap();
-            println!("VendorId: {:?}; productId: {:?}", device_desc.vendor_id(), device_desc.product_id());
+    for device in rusb::devices().unwrap().iter() {
+        let device_desc = device.device_descriptor().unwrap();
+        if VENDOR_ID == device_desc.vendor_id() && PRODUCT_ID == device_desc.product_id() {
+            println!("FOUND!");
+            disk_util::list();
         }
     }
 }
