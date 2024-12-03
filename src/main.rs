@@ -17,7 +17,7 @@ impl AppDelegate for BasicApp {
     fn did_finish_launching(&self) {
         self.window.set_minimum_content_size(400., 400.);
         self.window.set_title("Hello World!");
-        self.window.set_background_color(Color::rgb(0, 0,0));
+        self.window.set_background_color(Color::rgb(255, 0,0));
         self.window.show();
     }
 }
