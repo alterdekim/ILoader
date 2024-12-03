@@ -8,6 +8,6 @@ pub fn get_ipod_path() -> Option<String> {
             .filter(|d| d.is_some())
             .map(|d| d.unwrap())
             .last(),
-        Err(e) => None
+        Err(_e) => None
     }
 }

@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 rusb = "0.9.4"
 regex = "1.11.1"
+cacao = "0.3.2"
