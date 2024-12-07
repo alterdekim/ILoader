@@ -1,6 +1,6 @@
 
 pub mod sidebar {
-    use cacao::view::{View, ViewDelegate};
+    use cacao::{appkit::FocusRingType, button::{BezelStyle, Button}, geometry::Rect, layout::Layout, text::Font, view::{View, ViewDelegate}};
 
     #[derive(Default)]
     pub struct MainSidebar {
@@ -10,8 +10,15 @@ pub mod sidebar {
     impl ViewDelegate for MainSidebar {
         const NAME: &'static str = "MainSidebar";
 
-        fn did_load(&mut self, _view: View) {
-            
+        fn did_load(&mut self, view: View) {
+            let mut btn = Button::new("testtesttest");
+            btn.set_bezel_style(BezelStyle::TexturedRounded);
+            btn.set_bordered(false);
+            btn.set_font(Font::system(14.));
+            btn.set_action(|| {
+                println!("HEY");
+            });
+            view.add_subview(&btn);
         }
     }
 }
