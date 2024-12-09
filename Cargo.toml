@@ -6,4 +6,7 @@ edition = "2021"
 [dependencies]
 rusb = "0.9.4"
 regex = "1.11.1"
-cacao = "0.3.2"
+iced = { version = "0.13.1", features = ["tokio", "svg", "markdown", "highlighter", "system", "web-colors", "debug"] }
+
+[build-dependencies]
+iced_fontello = "0.13"
