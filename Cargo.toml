@@ -7,6 +7,4 @@ edition = "2021"
 rusb = "0.9.4"
 regex = "1.11.1"
 iced = { version = "0.13.1", features = ["tokio", "svg", "markdown", "highlighter", "system", "web-colors", "debug"] }
-
-[build-dependencies]
-iced_fontello = "0.13"
+iced_font_awesome = "0.2.0"

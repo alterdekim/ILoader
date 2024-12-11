@@ -1,3 +1,4 @@
+use iced::theme::Palette;
 use iced::widget::button::{Status, Style};
 use iced::{Background, Border, Color};
 use iced::Length::Fill;
@@ -6,6 +7,9 @@ use iced::widget::{button, column, pick_list, radio, text, Column, Container, sc
 
 mod disk_util;
 mod ipod_util;
+
+mod theme;
+mod widget;
 
 const VENDOR_ID: u16 = 1452;
 const PRODUCT_ID: u16 = 4617;
@@ -16,6 +20,8 @@ pub enum Message {
     ButtonPressed(u8),
     ChangeUI
 }
+
+
 struct State {
 }
 
@@ -42,7 +48,7 @@ impl App {
             }
             App::Loaded(state) => {
                 //return state.tab_panel.view();
-                return container(action("Test!").style(transparent_button_theme)).into();
+                return container(widget::basic_btn("Test!")).into();
             }
         }
     }
@@ -61,25 +67,8 @@ impl App {
     }
 
     fn theme(&self) -> Theme {
-        Theme::CatppuccinLatte
+        theme::get_default_theme()
     }
-}
-
-fn transparent_button_theme(theme: &Theme, _status: Status) -> Style {
-    Style {
-        background: Some(Background::Color(Color::BLACK)),
-        text_color: theme.palette().text,
-        border: Border {
-            color: Color::TRANSPARENT,
-            width: 0.0,
-            radius: 10.0.into(),
-        },
-        ..Default::default()
-    }
-}
-
-fn action(text: &str) -> button::Button<Message> {
-    button(container(text).center_x(Fill)).width(100)
 }
 
 fn main() -> iced::Result {
@@ -92,6 +81,7 @@ fn main() -> iced::Result {
     }*/
 
     iced::application("iLoader", App::update, App::view)
+        .exit_on_close_request(true)
         .theme(App::theme)
         .window_size((980.0, 700.0))
         .run_with(App::new)
