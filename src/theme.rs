@@ -29,7 +29,7 @@ pub fn basic_button_theme(theme: &Theme, _status: Status) -> Style {
         border: Border {
             color: Color::TRANSPARENT,
             width: 0.0,
-            radius: 10.0.into(),
+            radius: 5.0.into(),
         },
         ..Default::default()
     }

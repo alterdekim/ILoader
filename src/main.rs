@@ -81,7 +81,6 @@ fn main() -> iced::Result {
     }*/
 
     iced::application("iLoader", App::update, App::view)
-        .exit_on_close_request(true)
         .theme(App::theme)
         .window_size((980.0, 700.0))
         .run_with(App::new)
