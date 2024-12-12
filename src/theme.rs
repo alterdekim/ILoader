@@ -5,11 +5,8 @@ use iced::Length::Fill;
 use iced::{widget::container, window, Theme, Element, Settings, Task as Command};
 use iced::widget::{button, column, pick_list, radio, text, Column, Container, scrollable};
 
-pub const SF_FONT: Font = Font {
-    family: iced::font::Family::Name("SF Pro Text"),
-    weight: iced::font::Weight::Medium,
-    stretch: iced::font::Stretch::Normal,
-    style: iced::font::Style::Normal
+pub const SF_FONT = Font::External {
+
 };
 
 pub fn get_default_theme() -> Theme {
@@ -24,8 +21,8 @@ pub fn get_default_theme() -> Theme {
 
 pub fn basic_button_theme(theme: &Theme, _status: Status) -> Style {
     Style {
-        background: Some(Background::Color(Color::from_rgb8(0, 122, 255))),
-        text_color: theme.palette().text,
+        background: Some(Background::Color(Color::from_rgb8(0, 0, 0))),
+        text_color: Color::from_rgb8(255, 255, 255), // theme.palette().text
         border: Border {
             color: Color::TRANSPARENT,
             width: 0.0,
