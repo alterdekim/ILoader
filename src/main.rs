@@ -3,7 +3,7 @@ use iced::widget::button::{Status, Style};
 use iced::{Background, Border, Color};
 use iced::Length::Fill;
 use iced::{widget::container, window, Theme, Element, Settings, Task as Command};
-use iced::widget::{button, column, pick_list, radio, text, Column, Container, scrollable};
+use iced::widget::{button, column, pick_list, radio, row, scrollable, text, Column, Container};
 
 mod disk_util;
 mod ipod_util;
@@ -48,7 +48,8 @@ impl App {
             }
             App::Loaded(state) => {
                 //return state.tab_panel.view();
-                return container(widget::basic_btn("Test!")).into();
+                
+                return container(row![ widget::basic_btn("About iLoader") ]).into();
             }
         }
     }
