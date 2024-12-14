@@ -80,9 +80,10 @@ fn main() -> iced::Result {
             println!("{}", ipod_util::get_ipod_path().is_some());
         }
     }*/
-
+    // sidebar width 200px
     iced::application("iLoader", App::update, App::view)
         .theme(App::theme)
+        //.transparent(true)
         .window_size((980.0, 700.0))
         .run_with(App::new)
 }
