@@ -13,20 +13,20 @@ pub fn basic_btn(s: &str) -> button::Button<Message> {
 }
 
 // the value T should be something, that inherits ActionWindow
-enum SidebarTab<T> where T: ActionWindow {
-    Youtube(T),
-    /*Spotify(T),
-    Soundcloud(T),
-    ITunes(T),
-    Playlists(T),
-    FileSystem(T),
-    Metadata(T),
-    FindCopies(T),*/
-    Settings(SettingsWindow)
+enum SidebarTab {
+    Youtube(String),
+    Spotify(String),
+    Soundcloud(String),
+    ITunes(String),
+    Playlists(String),
+    FileSystem(String),
+    Metadata(String),
+    FindCopies(String),
+    Settings(String)
 }
 
 pub struct SidebarGroup {
-    tabs: Vec<SidebarTab<dyn ActionWindow>>,
+    tabs: Vec<(SidebarTab, Box<dyn ActionWindow>)>,
     name: String
 }
 
@@ -57,9 +57,21 @@ impl ActionWindow for SettingsWindow {
     }
 }
 
+pub struct YTWindow {}
+
+impl ActionWindow for YTWindow {
+    fn view(&self) -> Element<Message> {
+        todo!()
+    }
+
+    fn update(&mut self, message: Message) -> Command<Message> {
+        todo!()
+    }
+}
+
 pub struct SplitView<T> where T: ActionWindow {
     sidebar: Vec<SidebarGroup>,
-    main: Option<T>
+    selected: Option<(SidebarTab, Box<dyn ActionWindow>)>
 }
 
 impl<T: ActionWindow> SplitView<T> {
@@ -72,6 +84,6 @@ impl<T: ActionWindow> SplitView<T> {
     }
 
     pub fn new() -> Self {
-        Self{ sidebar: Vec::new(), main: None } 
+        Self{ sidebar: Vec::new(), selected: None } 
     }
 }
