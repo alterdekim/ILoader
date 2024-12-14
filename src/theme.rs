@@ -14,7 +14,7 @@ pub const SF_FONT: iced::Font = Font {
 
 pub fn get_default_theme() -> Theme {
     Theme::custom("Glossy".to_string(), Palette {
-        background: Color::from_rgb8(236, 236, 236),
+        background: Color::TRANSPARENT, // Color::from_rgb8(236, 236, 236)
         text: Color::from_rgb8(0, 0, 0),
         primary: Color::from_rgb8(0, 122, 255),
         success: Color::from_rgb8(52, 199, 89),
