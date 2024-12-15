@@ -1,4 +1,4 @@
-use iced::{widget::{button, container, text}, Length::Fill, Padding, Task as Command, Element};
+use iced::{widget::{button, column, container, row, text}, Element, Length::Fill, Padding, Task as Command};
 
 use crate::{theme, Message};
 
@@ -69,18 +69,29 @@ impl ActionWindow for YTWindow {
     }
 }
 
-pub struct SplitView<T> where T: ActionWindow {
+pub struct SplitView {
     sidebar: Vec<SidebarGroup>,
     selected: Option<(SidebarTab, Box<dyn ActionWindow>)>
 }
 
-impl<T: ActionWindow> SplitView<T> {
+impl SplitView {
     pub fn view(&self) -> Element<Message> {
-
+        if self.selected.is_none() {
+            return container("hey").into();
+        }
+        let a = &self.selected.as_ref().unwrap().1;
+        row![
+            column! [container("lol")],
+            if self.selected.is_some() { container(a.view()) } else { container(text!("None")) }
+        ].into()
     }
 
     pub fn update(&mut self, message: Message) -> Command<Message> {
-
+        if self.selected.is_some() {
+            let a = &mut self.selected.as_mut().unwrap().1;
+            return a.update(message);
+        }
+        Command::none()
     }
 
     pub fn new() -> Self {

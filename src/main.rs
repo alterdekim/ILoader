@@ -4,6 +4,7 @@ use iced::{Background, Border, Color};
 use iced::Length::Fill;
 use iced::{widget::container, window, Theme, Element, Settings, Task as Command};
 use iced::widget::{button, column, pick_list, radio, row, scrollable, text, Column, Container};
+use widget::SplitView;
 
 mod disk_util;
 mod ipod_util;
@@ -23,12 +24,7 @@ pub enum Message {
 
 
 struct State {
-}
-
-impl State {
-    fn new() -> Self {
-        Self {  }
-    }
+    split_view: SplitView
 }
 
 enum App {
@@ -48,8 +44,8 @@ impl App {
             }
             App::Loaded(state) => {
                 //return state.tab_panel.view();
-                
-                return container(row![ widget::basic_btn("About iLoader") ]).into();
+                return state.split_view.view();
+                //return container(row![ widget::basic_btn("About iLoader") ]).into();
             }
         }
     }
@@ -57,7 +53,11 @@ impl App {
     pub fn update(&mut self, message: Message) -> Command<Message> {
         match self {
             App::Preloaded => {
-                *self = App::Loaded(State {});
+                *self = App::Loaded(
+                    State { 
+                        split_view: SplitView::new()
+                    }
+                );
                 return Command::done(Message::ChangeUI);
             }
             App::Loaded(state) => {
