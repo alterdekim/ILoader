@@ -1,4 +1,4 @@
-use iced::{widget::{button, column, container, row, text}, Element, Length::Fill, Padding, Task as Command};
+use iced::{widget::{button, column, container, row, text, Column}, Element, Length::Fill, Padding, Task as Command};
 
 use crate::{theme, Message};
 
@@ -40,6 +40,29 @@ impl SidebarGroup {
     }
 }
 
+/*impl Into<Element<'_, Message>> for SidebarGroup {
+    fn into(self) -> Element<'static, Message> {
+        container(row![
+            text!(),
+
+        ]).into()
+    }
+}*/
+
+impl From<SidebarGroup> for Element<'_, Message> {
+    fn from(value: SidebarGroup) -> Self {
+        container(row![
+            text(value.name),
+            column(
+                value.tabs
+                    .iter()
+                    .map(|i| container(text(i.0)))
+                    .collect()
+            )
+        ]).into()
+    }
+}
+
 trait ActionWindow {
     fn view(&self) -> Element<Message>;
     fn update(&mut self, message: Message) -> Command<Message>;
@@ -76,13 +99,13 @@ pub struct SplitView {
 
 impl SplitView {
     pub fn view(&self) -> Element<Message> {
-        if self.selected.is_none() {
-            return container("hey").into();
-        }
-        let a = &self.selected.as_ref().unwrap().1;
         row![
-            column! [container("lol")],
-            if self.selected.is_some() { container(a.view()) } else { container(text!("None")) }
+            column(
+                self.sidebar.iter_mut()
+                    .map(|f| f.into())
+                    .collect::<Vec<Element<Message>>>()
+            ),
+            if self.selected.is_some() { container((&self.selected.as_ref().unwrap().1).view()) } else { container(text!("")) }
         ].into()
     }
 
