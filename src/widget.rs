@@ -3,7 +3,7 @@ use iced::{widget::{button, column, container, row, text, Column}, Element, Leng
 use crate::{theme, Message};
 
 
-pub fn basic_btn(s: &str) -> button::Button<Message> {
+pub fn basic_btn(s: String) -> button::Button<'static, Message> {
     button(container(text(s).center().font(theme::SF_FONT).size(13.0).line_height(1.)).padding(Padding {
         top: 1.5,
         right: 2.,
@@ -13,7 +13,8 @@ pub fn basic_btn(s: &str) -> button::Button<Message> {
 }
 
 // the value T should be something, that inherits ActionWindow
-enum SidebarTab {
+#[derive(Clone)]
+pub enum SidebarTab {
     Youtube(String),
     Spotify(String),
     Soundcloud(String),
@@ -23,6 +24,22 @@ enum SidebarTab {
     Metadata(String),
     FindCopies(String),
     Settings(String)
+}
+
+impl Into<String> for SidebarTab {
+    fn into(self) -> String {
+        match self {
+            SidebarTab::Youtube(a) => a,
+            SidebarTab::Spotify(a) => a,
+            SidebarTab::Soundcloud(a) => a,
+            SidebarTab::ITunes(a) => a,
+            SidebarTab::Playlists(a) => a,
+            SidebarTab::FileSystem(a) => a,
+            SidebarTab::Metadata(a) => a,
+            SidebarTab::FindCopies(a) => a,
+            SidebarTab::Settings(a) => a,
+        }
+    }
 }
 
 pub struct SidebarGroup {
@@ -38,32 +55,30 @@ impl SidebarGroup {
     pub fn name(&self) -> &String {
         &self.name
     }
+
+    pub fn push_tab(&mut self, t: (SidebarTab, Box<dyn ActionWindow>)) {
+        self.tabs.push(t);
+    }
 }
 
-/*impl Into<Element<'_, Message>> for SidebarGroup {
-    fn into(self) -> Element<'static, Message> {
-        container(row![
-            text!(),
-
-        ]).into()
-    }
-}*/
-
-impl From<SidebarGroup> for Element<'_, Message> {
-    fn from(value: SidebarGroup) -> Self {
-        container(row![
-            text(value.name),
+impl From<&SidebarGroup> for Element<'_, Message> {
+    fn from(value: &SidebarGroup) -> Self {
+        container(column![
+            text(value.name.clone()),
             column(
                 value.tabs
                     .iter()
-                    .map(|i| container(text(i.0)))
-                    .collect()
+                    .map(|i| {
+                        let s: String = i.0.clone().into();
+                        basic_btn(s).into()
+                    })
+                    .collect::<Vec<Element<Message>>>()
             )
         ]).into()
     }
 }
 
-trait ActionWindow {
+pub trait ActionWindow {
     fn view(&self) -> Element<Message>;
     fn update(&mut self, message: Message) -> Command<Message>;
 }
@@ -101,7 +116,7 @@ impl SplitView {
     pub fn view(&self) -> Element<Message> {
         row![
             column(
-                self.sidebar.iter_mut()
+                self.sidebar.iter()
                     .map(|f| f.into())
                     .collect::<Vec<Element<Message>>>()
             ),
@@ -115,6 +130,10 @@ impl SplitView {
             return a.update(message);
         }
         Command::none()
+    }
+
+    pub fn push_group(&mut self, group: SidebarGroup) {
+        self.sidebar.push(group);
     }
 
     pub fn new() -> Self {

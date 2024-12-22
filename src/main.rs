@@ -4,7 +4,7 @@ use iced::{Background, Border, Color};
 use iced::Length::Fill;
 use iced::{widget::container, window, Theme, Element, Settings, Task as Command};
 use iced::widget::{button, column, pick_list, radio, row, scrollable, text, Column, Container};
-use widget::SplitView;
+use widget::{SidebarGroup, SidebarTab, SplitView, YTWindow};
 
 mod disk_util;
 mod ipod_util;
@@ -61,6 +61,9 @@ impl App {
                 return Command::done(Message::ChangeUI);
             }
             App::Loaded(state) => {
+                let mut g = SidebarGroup::new("Streaming".to_string());
+                g.push_tab((SidebarTab::Soundcloud("Soundcloud".to_string()), Box::new(YTWindow {})));
+                state.split_view.push_group(g);
                 //state.tab_panel.update(message);
             }
         }
