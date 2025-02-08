@@ -1,81 +1,21 @@
-use iced::theme::Palette;
-use iced::widget::button::{Status, Style};
-use iced::{Background, Border, Color};
-use iced::Length::Fill;
-use iced::{widget::container, window, Theme, Element, Settings, Task as Command};
-use iced::widget::{button, column, pick_list, radio, row, scrollable, text, Column, Container};
-use widget::{SidebarGroup, SidebarTab, SplitView, YTWindow};
+use gtk::{prelude::*, ApplicationWindow, Orientation, Stack, StackSidebar};
+use gtk::{glib, Application};
+use glib::clone;
+
+use std::{sync::OnceLock, error::Error};
+use tokio::runtime::Runtime;
+
+use soundcloud::sobjects::CloudPlaylists;
 
 mod disk_util;
 mod ipod_util;
 
-mod theme;
-mod widget;
-
 const VENDOR_ID: u16 = 1452;
 const PRODUCT_ID: u16 = 4617;
 
+const APP_ID: &str = "com.alterdekim.iloader";
 
-#[derive(Debug, Clone)]
-pub enum Message {
-    ButtonPressed(u8),
-    ChangeUI
-}
-
-
-struct State {
-    split_view: SplitView
-}
-
-enum App {
-    Preloaded,
-    Loaded(State)
-}
-
-impl App {
-    pub fn new() -> (Self, Command<Message>) {
-        (Self::Preloaded, Command::done(Message::ChangeUI))
-    }
-
-    pub fn view(&self) -> Element<Message> {
-        match self {
-            App::Preloaded => {
-                return container(text("Loading")).into();
-            }
-            App::Loaded(state) => {
-                //return state.tab_panel.view();
-                return state.split_view.view();
-                //return container(row![ widget::basic_btn("About iLoader") ]).into();
-            }
-        }
-    }
-
-    pub fn update(&mut self, message: Message) -> Command<Message> {
-        match self {
-            App::Preloaded => {
-                *self = App::Loaded(
-                    State { 
-                        split_view: SplitView::new()
-                    }
-                );
-                return Command::done(Message::ChangeUI);
-            }
-            App::Loaded(state) => {
-                let mut g = SidebarGroup::new("Streaming".to_string());
-                g.push_tab((SidebarTab::Soundcloud("Soundcloud".to_string()), Box::new(YTWindow {})));
-                state.split_view.push_group(g);
-                //state.tab_panel.update(message);
-            }
-        }
-        Command::none()
-    }
-
-    fn theme(&self) -> Theme {
-        theme::get_default_theme()
-    }
-}
-
-fn main() -> iced::Result {
+fn main() -> glib::ExitCode {
     /*for device in rusb::devices().unwrap().iter() {
         let device_desc = device.device_descriptor().unwrap();
         if VENDOR_ID == device_desc.vendor_id() && PRODUCT_ID == device_desc.product_id() {
@@ -83,10 +23,77 @@ fn main() -> iced::Result {
             println!("{}", ipod_util::get_ipod_path().is_some());
         }
     }*/
-    // sidebar width 200px
-    iced::application("iLoader", App::update, App::view)
-        .theme(App::theme)
-        //.transparent(true)
-        .window_size((980.0, 700.0))
-        .run_with(App::new)
+    // Create a new application
+    let app = Application::builder().application_id(APP_ID).build();
+
+    app.connect_activate(build_ui);
+
+    // Run the application
+    app.run()
+}
+
+fn runtime() -> &'static Runtime {
+    static RUNTIME: OnceLock<Runtime> = OnceLock::new();
+    RUNTIME.get_or_init(|| Runtime::new().expect("Setting up tokio runtime needs to succeed."))
+}
+
+fn build_ui(app: &Application) {
+    let (sender, receiver) = async_channel::bounded::<CloudPlaylists>(1);
+    runtime().spawn(clone!(
+        #[strong]
+        sender,
+        async move {
+            let app_version = soundcloud::get_app().await.unwrap().unwrap();
+            let client_id = soundcloud::get_client_id().await.unwrap().unwrap();
+            let user_id: u64 = 774639751;
+
+            sender
+                .send(soundcloud::get_playlists(user_id, client_id, app_version).await.unwrap())
+                .await
+                .expect("The channel needs to be open.");
+        }
+    ));
+
+    let window = ApplicationWindow::builder()
+        .application(app)
+        .title("ILoader")
+        .default_width(980)
+        .default_height(700)
+        .build();
+
+    let hbox = gtk::Box::new(Orientation::Horizontal, 5);
+
+    let stack = Stack::new(); 
+    stack.set_transition_type(gtk::StackTransitionType::SlideLeftRight); // Add some pages to the stack 
+
+    let label1 = gtk::Label::new(Some("Youtube Content")); 
+    stack.add_titled(&label1, Some("page1"), "Youtube"); 
+
+    let grid_layout = gtk::Grid::builder()
+        .row_spacing(5)
+        .column_spacing(5)
+        .build();
+    
+    window.set_child(Some(&hbox));
+
+    let label3 = gtk::Label::new(Some("Spotify Content")); 
+    stack.add_titled(&label3, Some("page3"), "Spotify"); 
+
+    let sidebar = StackSidebar::new(); 
+    sidebar.set_stack(&stack); 
+
+    hbox.append(&sidebar); 
+    hbox.append(&stack); 
+
+    glib::spawn_future_local(async move {
+        while let Ok(response) = receiver.recv().await {
+            for playlist in response.collection {
+                let label2 = gtk::Label::new(Some(&playlist.title)); 
+                grid_layout.attach(&label2, 0, 0, 1, 1);
+            }
+            stack.add_titled(&grid_layout, Some("page2"), "Soundcloud"); 
+        }
+    });
+
+    window.present();
 }
