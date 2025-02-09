@@ -1,0 +1,1 @@
+Abandoned. Take a look at [Lyrica](https://gitea.awain.net/alterwain/Lyrica)
